@@ -32,14 +32,14 @@ Simple architecture for serving static blog content.
 - project_name: string
 - state_bucket_name: string
 - content_bucket_name: string
-- domain: string
+- domain: string (optional)
 
 ## TF outputs
 - aws_ssm_parameter.content_bucket_name_param.name
-- aws_ssm_parameter.domain_param.name
+- aws_ssm_parameter.domain_param.name (set to CF distribution URL if domain not specified)
 - aws_ssm_parameter.cloudfront_distribution_id.name
 - aws_ssm_parameter.deploy_role_arn.name
-- (plus the actual ids of relevant resources. The params are for tracking that we're pushing them for consumption by content deploy)
+- (plus the actual relevant resources. The params are for tracking that we're pushing them for consumption by content deploy)
 
 ## Usage
 TBD
