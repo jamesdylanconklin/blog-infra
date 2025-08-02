@@ -1,0 +1,23 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Backend configuration files (contain environment-specific settings)
+backend-*.hcl
+
+# Terraform variable files (may contain sensitive data)
+*.tfvars
+!*.tfvars.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
