@@ -106,11 +106,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "content" {
     noncurrent_version_expiration {
       noncurrent_days = var.version_retention_days
     }
-
-    noncurrent_version_transition {
-      noncurrent_days = 7
-      storage_class   = "STANDARD_IA"
-    }
   }
 }
 
@@ -230,98 +225,6 @@ resource "aws_cloudfront_distribution" "content" {
     max_ttl     = 31536000 # 1 year
   }
 
-  # Cache behavior for images (very long cache)
-  ordered_cache_behavior {
-    path_pattern           = "*.{jpg,jpeg,png,gif,webp,svg,ico}"
-    target_origin_id       = "S3-${aws_s3_bucket.content.bucket}"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-    
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods  = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    # Very long cache for images (rarely change)
-    min_ttl     = 0
-    default_ttl = 7776000  # 90 days
-    max_ttl     = 31536000 # 1 year
-  }
-
-  # Cache behavior for fonts (very long cache)
-  ordered_cache_behavior {
-    path_pattern           = "*.{woff,woff2,ttf,otf,eot}"
-    target_origin_id       = "S3-${aws_s3_bucket.content.bucket}"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = false  # Fonts are already compressed
-    
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods  = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    # Very long cache for fonts (almost never change)
-    min_ttl     = 0
-    default_ttl = 15552000 # 180 days
-    max_ttl     = 31536000 # 1 year
-  }
-
-  # Cache behavior for sitemap and feeds (medium cache)
-  ordered_cache_behavior {
-    path_pattern           = "sitemap*.xml"
-    target_origin_id       = "S3-${aws_s3_bucket.content.bucket}"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-    
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods  = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    # Medium cache for sitemaps (updated when content changes)
-    min_ttl     = 0
-    default_ttl = 3600    # 1 hour
-    max_ttl     = 86400   # 1 day
-  }
-
-  # Cache behavior for RSS/Atom feeds (medium cache)
-  ordered_cache_behavior {
-    path_pattern           = "*.{rss,atom,xml}"
-    target_origin_id       = "S3-${aws_s3_bucket.content.bucket}"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
-    
-    allowed_methods = ["GET", "HEAD"]
-    cached_methods  = ["GET", "HEAD"]
-
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    # Medium cache for feeds (updated when new posts are published)
-    min_ttl     = 0
-    default_ttl = 3600    # 1 hour
-    max_ttl     = 86400   # 1 day
-  }
-
   # Geographic restrictions (none for now)
   restrictions {
     geo_restriction {
@@ -332,7 +235,7 @@ resource "aws_cloudfront_distribution" "content" {
   # SSL certificate (CloudFront default for now, custom domain later)
   viewer_certificate {
     cloudfront_default_certificate = true
-    minimum_protocol_version       = "TLSv1.2_2021"
+    minimum_protocol_version       = "TLSv1"  # Required when using cloudfront_default_certificate
   }
 
   # Custom error pages
