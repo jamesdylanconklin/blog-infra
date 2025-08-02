@@ -29,3 +29,25 @@ variable "domain" {
   type        = string
   default     = ""
 }
+
+variable "version_count" {
+  description = "Number of versions to retain for S3 objects. Set to 0 to disable versioning entirely"
+  type        = number
+  default     = 5
+  
+  validation {
+    condition     = var.version_count >= 0
+    error_message = "Version count must be 0 or greater. Use 0 to disable versioning."
+  }
+}
+
+variable "version_retention_days" {
+  description = "Number of days to retain non-current versions of S3 objects"
+  type        = number
+  default     = 30
+  
+  validation {
+    condition     = var.version_retention_days > 0
+    error_message = "Version retention days must be greater than 0."
+  }
+}
